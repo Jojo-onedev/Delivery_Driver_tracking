@@ -8,7 +8,7 @@ const generateToken = (id) => {
 
 const register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'A user with this email already exists.' });
@@ -17,7 +17,7 @@ const register = async (req, res) => {
       name,
       email,
       password,
-      role: role || 'driver'
+      role: 'driver'  // Toujours définir comme driver
     });
     const token = generateToken(user._id);
     res.status(201).json({
@@ -28,6 +28,7 @@ const register = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role
+      }
     });
       
   } catch (error) {
@@ -41,15 +42,28 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log('Tentative de connexion avec:', { email });
+    
     if (!email || !password) {
+      console.log('Email ou mot de passe manquant');
       return res.status(400).json({ message: 'Email and password required' });
     }
-    const user = await User.findOne({ email });
+    
+    // Recherche insensible à la casse pour l'email
+    const user = await User.findOne({ email: { $regex: new RegExp('^' + email + '$', 'i') } });
+    console.log('Utilisateur trouvé:', user ? 'Oui' : 'Non');
+    
     if (!user) {
+      console.log('Aucun utilisateur trouvé avec cet email');
       return res.status(401).json({ message: 'Incorrect email or password' });
     }
+    
+    console.log('Vérification du mot de passe...');
     const isPasswordValid = await user.comparePassword(password);
+    console.log('Mot de passe valide:', isPasswordValid);
+    
     if (!isPasswordValid) {
+      console.log('Mot de passe incorrect');
       return res.status(401).json({ message: 'Incorrect email or password' });
     }
     const token = generateToken(user._id);
