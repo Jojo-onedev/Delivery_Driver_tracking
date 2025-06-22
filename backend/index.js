@@ -12,12 +12,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
+  next();
+});
+
 // Routes publiques
 app.use('/api/auth', require('./routes/auth'));
 
 // Routes protégées
 app.use('/api/deliveries', require('./routes/delivery'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/location', require('./routes/location'));
 
 // Connexion MongoDB
 mongoose
@@ -60,6 +66,12 @@ app.use((err, req, res, next) => {
     message: 'Une erreur est survenue',
     error: process.env.NODE_ENV === 'development' ? err.message : {}
   });
+});
+
+// Test route - à ajouter avant app.listen
+app.get('/api/test', (req, res) => {
+  console.log('Test route called');
+  res.json({ message: 'Test route works!' });
 });
 
 const PORT = process.env.PORT || 5000;
