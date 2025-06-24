@@ -53,7 +53,6 @@ const userSchema = new mongoose.Schema({
   // Dernière position connue du chauffeur
   location: {
     type: locationSchema,
-    index: '2dsphere',
     sparse: true
   },
   // Statut du chauffeur (hors service, disponible, en livraison)
@@ -151,5 +150,7 @@ userSchema.methods.toGeoJSON = function() {
     geometry: this.location || null
   };
 };
+
+userSchema.index({location: '2dsphere'})
 
 module.exports = mongoose.model('User', userSchema);
