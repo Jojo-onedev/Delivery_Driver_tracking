@@ -1,21 +1,97 @@
+console.log('Chargement des dépendances de test...');
 const request = require('supertest');
-const app = require('../../../index');
+const { MongoMemoryServer } = require('mongodb-memory-server');
+const mongoose = require('mongoose');
+
+console.log('Chargement de l\'application...');
+const { app, server } = require('../../../index');
 const User = require('../../../models/User');
-const { connect, close, clear } = require('../../../test-utils');
+
+let mongoServer;
+
+// Stocker le serveur Express dans une variable globale pour pouvoir le fermer
+if (server) {
+  global.__SERVER__ = server;
+}
 
 beforeAll(async () => {
-  await connect();
+  console.log('Démarrage du serveur MongoDB en mémoire...');
+  try {
+    mongoServer = await MongoMemoryServer.create();
+    const mongoUri = mongoServer.getUri();
+    console.log('MongoDB Memory Server démarré sur:', mongoUri);
+    
+    // Se connecter à la base de données de test
+    console.log('Connexion à MongoDB...');
+    await mongoose.connect(mongoUri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('Connecté à MongoDB avec succès');
+  } catch (error) {
+    console.error('Erreur lors de la configuration des tests:', error);
+    throw error;
+  }
 });
 
 afterEach(async () => {
-  await clear();
+  // Nettoyer la base de données entre les tests
+  const collections = mongoose.connection.collections;
+  for (const key in collections) {
+    await collections[key].deleteMany({});
+  }
 });
 
 afterAll(async () => {
-  await close();
+  console.log('Nettoyage après les tests...');
+  try {
+    if (mongoose.connection.readyState === 1) {
+      console.log('Fermeture de la connexion MongoDB...');
+      await mongoose.disconnect();
+      console.log('Connexion MongoDB fermée');
+    }
+    
+    if (mongoServer) {
+      console.log('Arrêt du serveur MongoDB en mémoire...');
+      await mongoServer.stop();
+      console.log('Serveur MongoDB arrêté');
+    }
+    
+    console.log('Fermeture du serveur Express...');
+    await new Promise(resolve => server.close(resolve));
+    console.log('Serveur Express fermé');
+  } catch (error) {
+    console.error('Erreur lors du nettoyage après les tests:', error);
+    throw error;
+  }
+});
+
+console.log('Démarrage des tests d\'authentification...');
+
+// Test de base en dehors de tout describe pour vérifier que Jest fonctionne
+console.log('Définition du test de base...');
+
+test('test de base de Jest', () => {
+  console.log('Exécution du test de base de Jest');
+  expect(true).toBe(true);
 });
 
 describe('Auth API', () => {
+  console.log('Définition du describe Auth API');
+  
+  beforeAll(() => {
+    console.log('Configuration avant tous les tests d\'authentification');
+  });
+
+  afterAll(() => {
+    console.log('Nettoyage après tous les tests d\'authentification');
+  });
+  
+  // Test de base pour vérifier que les tests s'exécutent
+  it('devrait exécuter un test de base', () => {
+    console.log('Exécution du test de base dans describe');
+    expect(true).toBe(true);
+  });
   describe('POST /api/auth/register', () => {
     it('devrait enregistrer un nouvel utilisateur avec succès', async () => {
       const userData = {

@@ -45,6 +45,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  passwordChangedAt: {
+    type: Date,
+    select: false
+  },
   role: { 
     type: String, 
     enum: ['driver', 'admin'], 
@@ -91,16 +95,21 @@ const userSchema = new mongoose.Schema({
 // Index pour les recherches géospatiales
 userSchema.index({ location: '2dsphere' });
 
-// Hash le mot de passe avant sauvegarde
-userSchema.pre('save', async function (next) {
+// Hachage du mot de passe avant la sauvegarde
+userSchema.pre('save', async function(next) {
+  // Ne rien faire si le mot de passe n'est pas modifié
   if (!this.isModified('password')) return next();
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error);
+  
+  // Hacher le mot de passe
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  
+  // Mettre à jour la date de modification du mot de passe
+  if (this.isModified('password') && !this.isNew) {
+    this.passwordChangedAt = Date.now() - 1000; // -1s pour s'assurer que le token est émis après
   }
+  
+  next();
 });
 
 // Méthode pour comparer les mots de passe
@@ -151,6 +160,19 @@ userSchema.methods.toGeoJSON = function() {
   };
 };
 
-userSchema.index({location: '2dsphere'})
+// Vérifie si le mot de passe a été modifié après l'émission du token
+userSchema.methods.changedPasswordAfter = function(JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const changedTimestamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
+    return JWTTimestamp < changedTimestamp;
+  }
+  // False signifie que le mot de passe n'a pas été modifié
+  return false;
+};
+
+userSchema.index({location: '2dsphere'});
 
 module.exports = mongoose.model('User', userSchema);

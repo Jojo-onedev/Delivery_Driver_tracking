@@ -1,21 +1,46 @@
-# API de Suivi des Chauffeurs Livreurs
+# 🚚 API de Suivi des Chauffeurs Livreurs
+
+API sécurisée pour le suivi en temps réel des chauffeurs livreurs avec gestion des livraisons et authentification avancée.
 
 ## 📋 Table des matières
+- [Fonctionnalités](#-fonctionnalités)
+- [Sécurité](#-sécurité)
 - [Prérequis](#-prérequis)
 - [Installation](#-installation)
 - [Configuration](#-configuration)
 - [Démarrage](#-démarrage)
 - [API Endpoints](#-api-endpoints)
-- [État d'avancement](#-état-davancement)
 - [Tests](#-tests)
 - [Documentation technique](#-documentation-technique)
+- [Déploiement](#-déploiement)
 - [Maintenance](#-maintenance)
+- [Contribuer](#-contribuer)
+
+## ✨ Fonctionnalités
+
+- 🔒 Authentification sécurisée avec JWT
+- 🛣️ Suivi en temps réel des chauffeurs
+- 📍 Gestion des livraisons
+- 👨‍💻 Interface d'administration
+- 📱 API RESTful complète
+- 🚀 Performances optimisées
+- 🛡️ Protection contre les attaques courantes
+
+## 🔒 Sécurité
+
+- Validation des entrées utilisateur
+- Protection contre les attaques XSS et CSRF
+- Rate limiting (100 requêtes/15 minutes)
+- En-têtes de sécurité HTTP
+- Mots de passe hachés avec bcrypt
+- Tokens JWT sécurisés
+- Protection contre les attaques par force brute
 
 ## 🛠 Prérequis
 
-- Node.js (v14+)
-- MongoDB (v4.4+)
-- npm ou yarn
+- Node.js (v16+)
+- MongoDB (v5.0+)
+- npm (v8+) ou yarn (v1.22+)
 
 ## ⚙️ Installation
 
@@ -36,18 +61,42 @@
 
 ## 🔧 Configuration
 
-1. Créer un fichier `.env` à la racine du backend :
-   ```
-   PORT=5000
-   MONGO_URI=mongodb://localhost:27017/delivery_tracking
-   JWT_SECRET=votre_secret_jwt
-   NODE_ENV=development
+1. Copier le fichier d'exemple :
+   ```bash
+   cp .env.example .env
    ```
 
-2. Variables d'environnement optionnelles :
-   - `JWT_EXPIRE=30d` - Durée de validité du token JWT
-   - `ADMIN_EMAIL=admin@delivery.com` - Email admin par défaut
-   - `ADMIN_PASSWORD=Motdepasse123!` - Mot de passe admin par défaut
+2. Configurer les variables dans `.env` :
+   ```env
+   # Configuration du serveur
+   PORT=5000
+   NODE_ENV=development
+   
+   # Base de données
+   MONGO_URI=mongodb://localhost:27017/delivery_tracking
+   
+   # JWT
+   JWT_SECRET=votre_secret_jwt_tres_long_et_complexe
+   JWT_EXPIRES_IN=30d
+   
+   # Configuration Admin
+   ADMIN_EMAIL=admin@delivery.com
+   ADMIN_PASSWORD=Motdepasse123!
+   
+   # URL du frontend
+   FRONTEND_URL=http://localhost:3000
+   ```
+
+### Variables d'environnement importantes
+
+| Variable | Description | Valeur par défaut |
+|----------|-------------|-------------------|
+| `PORT` | Port d'écoute du serveur | 5000 |
+| `MONGO_URI` | URI de connexion MongoDB | - |
+| `JWT_SECRET` | Clé secrète pour les JWT | - |
+| `JWT_EXPIRES_IN` | Durée de validité des tokens | 30d |
+| `NODE_ENV` | Environnement d'exécution | development |
+| `FRONTEND_URL` | URL du frontend pour CORS | http://localhost:3000 |
 
 ## 🚀 Démarrage
 
@@ -112,46 +161,47 @@ npm run test:coverage
 
 ## 📚 Documentation technique
 
-### Modèles de données
-
-#### User
-```javascript
-{
-  name: String,
-  email: { type: String, unique: true },
-  password: String,
-  role: { type: String, enum: ['admin', 'driver', 'user'] },
-  location: {
-    type: { type: String, default: 'Point' },
-    coordinates: [Number] // [longitude, latitude]
-  },
-  lastLocationUpdate: Date,
-  status: { type: String, enum: ['offline', 'available', 'on_delivery'] },
-  vehicle: String,
-  licensePlate: String,
-  rating: Number
-}
+### Structure du projet
+```
+backend/
+├── config/           # Fichiers de configuration
+├── controllers/       # Contrôleurs de l'API
+├── middleware/        # Middlewares personnalisés
+│   ├── auth.js       # Authentification
+│   ├── validate.js   # Validation des données
+│   └── error.js      # Gestion des erreurs
+├── models/           # Modèles Mongoose
+├── routes/           # Définition des routes
+├── tests/            # Tests automatisés
+│   ├── unit/         # Tests unitaires
+│   └── integration/  # Tests d'intégration
+├── validators/       # Validation des données
+├── .env.example      # Exemple de variables d'environnement
+├── .gitignore        # Fichiers à ignorer par git
+├── index.js          # Point d'entrée de l'application
+├── package.json      # Dépendances et scripts
+└── SECURITY.md       # Documentation de sécurité
 ```
 
-#### LocationUpdate
-```javascript
-{
-  driverId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  deliveryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Delivery' },
-  location: {
-    type: { type: String, default: 'Point' },
-    coordinates: [Number] // [longitude, latitude]
-  },
-  accuracy: Number,
-  speed: Number,
-  heading: Number,
-  altitude: Number,
-  source: String,
-  batteryLevel: Number,
-  isCharging: Boolean,
-  rawData: Object
-}
-```
+### Architecture
+- **MVC** : Modèle-Vue-Contrôleur
+- **RESTful** : API conforme aux principes REST
+- **JWT** : Authentification sans état
+- **MongoDB** : Base de données NoSQL
+- **Mongoose** : ODM pour MongoDB
+
+### Bonnes pratiques
+- Code modulaire
+- Gestion centralisée des erreurs
+- Validation des entrées
+- Logging approprié
+- Documentation claire
+- Tests automatisés
+- Protection contre les attaques XSS et CSRF
+- Rate limiting (100 requêtes/15 minutes)
+- En-têtes de sécurité HTTP
+- Mots de passe hachés avec bcrypt
+- Tokens JWT sécurisés
 
 ## 🔧 Maintenance
 

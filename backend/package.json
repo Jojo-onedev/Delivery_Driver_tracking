@@ -4,9 +4,15 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
-    "test": "cross-env NODE_ENV=test jest --detectOpenHandles --forceExit",
-    "test:watch": "cross-env NODE_ENV=test jest --watch",
-    "test:coverage": "cross-env NODE_ENV=test jest --coverage"
+    "test": "npm run test:unit && npm run test:integration && npm run test:e2e",
+    "test:unit": "cross-env NODE_ENV=test jest --config=jest.config.unit.js --runInBand",
+    "test:integration": "cross-env NODE_ENV=test jest --config=jest.config.integration.js --runInBand",
+    "test:e2e": "cross-env NODE_ENV=test jest --config=jest.config.e2e.js --runInBand",
+    "test:watch": "cross-env NODE_ENV=test jest --watch --config=jest.config.unit.js --runInBand",
+    "test:watch:integration": "cross-env NODE_ENV=test jest --watch --config=jest.config.integration.js --runInBand",
+    "test:watch:e2e": "cross-env NODE_ENV=test jest --watch --config=jest.config.e2e.js --runInBand",
+    "test:coverage": "cross-env NODE_ENV=test jest --coverage --config=jest.config.base.js --runInBand",
+    "test:debug": "cross-env NODE_ENV=test node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand --config=jest.config.unit.js"
   },
   "dependencies": {
     "@turf/turf": "^7.2.0",
@@ -14,14 +20,18 @@
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "express-rate-limit": "^7.5.1",
     "express-validator": "^7.2.1",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.16.0"
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
     "@shelf/jest-mongodb": "^4.3.2",
     "cross-env": "^7.0.3",
-    "jest": "^30.0.2",
+    "expect": "^30.0.2",
+    "jest-circus": "^30.0.2",
+    "mongodb-memory-server": "^10.1.4",
+    "mongoose": "^8.16.0",
     "nodemon": "^3.1.10",
     "supertest": "^7.1.1"
   }

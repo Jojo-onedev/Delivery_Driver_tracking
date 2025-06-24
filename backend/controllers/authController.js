@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 
 const generateToken = (id) => {
@@ -97,4 +98,84 @@ const getProfile = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getProfile };
+// Mettre à jour le profil utilisateur
+const updateProfile = async (req, res) => {
+  try {
+    const updates = Object.keys(req.body);
+    const allowedUpdates = ['name', 'email', 'phone'];
+    const isValidOperation = updates.every(update => allowedUpdates.includes(update));
+
+    if (!isValidOperation) {
+      return res.status(400).json({ 
+        status: 'error',
+        message: 'Mise à jour non autorisée' 
+      });
+    }
+
+    updates.forEach(update => req.user[update] = req.body[update]);
+    await req.user.save();
+
+    res.json({
+      status: 'success',
+      message: 'Profil mis à jour avec succès',
+      user: {
+        id: req.user._id,
+        name: req.user.name,
+        email: req.user.email,
+        phone: req.user.phone,
+        role: req.user.role
+      }
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Cet email est déjà utilisé par un autre compte'
+      });
+    }
+    res.status(500).json({
+      status: 'error',
+      message: 'Erreur lors de la mise à jour du profil',
+      error: error.message
+    });
+  }
+};
+
+// Changer le mot de passe
+const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    
+    // Vérifier l'ancien mot de passe
+    const isMatch = await bcrypt.compare(currentPassword, req.user.password);
+    if (!isMatch) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Le mot de passe actuel est incorrect'
+      });
+    }
+
+    // Mettre à jour le mot de passe
+    req.user.password = newPassword;
+    await req.user.save();
+
+    res.json({
+      status: 'success',
+      message: 'Mot de passe mis à jour avec succès'
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Erreur lors du changement de mot de passe',
+      error: error.message
+    });
+  }
+};
+
+module.exports = { 
+  register, 
+  login, 
+  getProfile, 
+  updateProfile, 
+  changePassword 
+};
