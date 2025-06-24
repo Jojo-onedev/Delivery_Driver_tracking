@@ -46,7 +46,7 @@ const login = async (req, res) => {
     
     if (!email || !password) {
       console.log('Email ou mot de passe manquant');
-      return res.status(400).json({ message: 'Email and password required' });
+      return res.status(400).json({ message: 'Email et mot de passe requis' });
     }
     
     // Recherche insensible à la casse pour l'email
@@ -55,7 +55,7 @@ const login = async (req, res) => {
     
     if (!user) {
       console.log('Aucun utilisateur trouvé avec cet email');
-      return res.status(401).json({ message: 'Incorrect email or password' });
+      return res.status(401).json({ message: 'Incorrect email ou mot de passe' });
     }
     
     console.log('Vérification du mot de passe...');
@@ -64,11 +64,11 @@ const login = async (req, res) => {
     
     if (!isPasswordValid) {
       console.log('Mot de passe incorrect');
-      return res.status(401).json({ message: 'Incorrect email or password' });
+      return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
     }
     const token = generateToken(user._id);
     res.json({
-      message: 'Connexion successful',
+      message: 'Connexion réussie',
       token,
       user: {
         id: user._id,
@@ -79,7 +79,7 @@ const login = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
-      message: 'Server error during login',
+      message: 'Erreur serveur lors de la connexion',
       error: error.message
     });
   }
@@ -91,7 +91,7 @@ const getProfile = async (req, res) => {
     res.json({ user });
   } catch (error) {
     res.status(500).json({
-      message: 'Server error while fetching profile',
+      message: 'Erreur serveur lors de la récupération du profil',
       error: error.message
     });
   }

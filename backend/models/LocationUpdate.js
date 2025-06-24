@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { schema } = require('./User');
 
 const pointSchema = new mongoose.Schema({
   type: {
@@ -38,7 +39,6 @@ const locationUpdateSchema = new mongoose.Schema({
   location: {
     type: pointSchema,
     required: [true, 'La position est requise'],
-    index: '2dsphere'
   },
   // Précision en mètres (si disponible)
   accuracy: {
@@ -148,5 +148,7 @@ locationUpdateSchema.post('save', async function() {
     console.error('Erreur lors du nettoyage des anciennes positions:', error);
   }
 });
+
+locationUpdateSchema.index({location: '2dsphere'})
 
 module.exports = mongoose.model('LocationUpdate', locationUpdateSchema);
