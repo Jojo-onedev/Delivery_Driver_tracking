@@ -1,0 +1,87 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-06-24T23:47:00.000Z",
+  "resources": [
+    {
+      "_id": "wrk_1751cfde2aaf4333a213b2490cb9ae34",
+      "parentId": null,
+      "modified": 1750627152768,
+      "created": 1750627152768,
+      "name": "Drivers Delivery API",
+      "scope": "collection",
+      "data": {},
+      "dataPropertyOrder": {"&": []}
+    },
+    {
+      "_id": "fld_92115e4cd49445f7b606ff1b2cbdc424",
+      "parentId": "wrk_1751cfde2aaf4333a213b2490cb9ae34",
+      "modified": 1750627473276,
+      "created": 1750627473276,
+      "name": "Auth",
+      "data": {
+        "name": "Auth",
+        "description": "Endpoints d'authentification"
+      },
+      "dataPropertyOrder": {"&": ["name", "description"]}
+    },
+    {
+      "_id": "req_556da1c8401143f98e40c3b822202594",
+      "parentId": "fld_92115e4cd49445f7b606ff1b2cbdc424",
+      "modified": 1750797644672,
+      "created": 1750627510441,
+      "name": "Register",
+      "method": "POST",
+      "url": "http://localhost:5000/api/auth/register",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"name\": \"Chauffeur2\", \"email\": \"chauffeur2@example.com\", \"password\": \"motdepasse123\"}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ]
+    },
+    {
+      "_id": "req_8222ba6e507740828b1fa2f2a91dedc5",
+      "parentId": "fld_92115e4cd49445f7b606ff1b2cbdc424",
+      "modified": 1750798859525,
+      "created": 1750627998191,
+      "name": "Login",
+      "method": "POST",
+      "url": "http://localhost:5000/api/auth/login",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"email\": \"chauffeur@example.com\", \"password\": \"motdepasse123\"}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ]
+    },
+    {
+      "_id": "req_fe44bd2d540e476481b38398da7ff7f9",
+      "parentId": "fld_92115e4cd49445f7b606ff1b2cbdc424",
+      "modified": 1750798237770,
+      "created": 1750628131678,
+      "name": "Get Profile",
+      "method": "GET",
+      "url": "http://localhost:5000/api/auth/profile",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ]
+    }
+  ]
+}

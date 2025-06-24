@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 
 // Configuration de l'environnement
 dotenv.config();
@@ -12,10 +13,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Log des requêtes
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
   next();
 });
+
+// Configuration Swagger
+const setupSwagger = require('./config/swagger');
+setupSwagger(app);
 
 // Routes publiques
 app.use('/api/auth', require('./routes/auth'));

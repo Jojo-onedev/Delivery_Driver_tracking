@@ -1,6 +1,86 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       required:
+ *         - name
+ *         - email
+ *         - password
+ *         - role
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: L'ID unique de l'utilisateur
+ *         name:
+ *           type: string
+ *           description: Le nom complet de l'utilisateur
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: L'email de l'utilisateur (unique)
+ *         password:
+ *           type: string
+ *           format: password
+ *           description: Le mot de passe haché
+ *         phone:
+ *           type: string
+ *           description: Le numéro de téléphone de l'utilisateur
+ *         role:
+ *           type: string
+ *           enum: [driver, admin]
+ *           default: driver
+ *           description: Le rôle de l'utilisateur
+ *         status:
+ *           type: string
+ *           enum: [offline, available, on_delivery]
+ *           default: offline
+ *           description: Le statut actuel du chauffeur
+ *         location:
+ *           type: object
+ *           properties:
+ *             type:
+ *               type: string
+ *               enum: [Point]
+ *               default: Point
+ *             coordinates:
+ *               type: array
+ *               items:
+ *                 type: number
+ *               description: [longitude, latitude]
+ *           description: La position géographique actuelle
+ *         lastLocationUpdate:
+ *           type: string
+ *           format: date-time
+ *           description: Date de la dernière mise à jour de position
+ *         vehicle:
+ *           type: string
+ *           enum: [car, motorbike, bicycle, on_foot, null]
+ *           nullable: true
+ *           description: Le type de véhicule utilisé
+ *         licensePlate:
+ *           type: string
+ *           description: La plaque d'immatriculation du véhicule
+ *         rating:
+ *           type: number
+ *           minimum: 0
+ *           maximum: 5
+ *           default: 0
+ *           description: La note moyenne de l'utilisateur
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: La date de création du compte
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           description: La date de dernière mise à jour du compte
+ */
+
 const locationSchema = new mongoose.Schema({
   type: {
     type: String,
