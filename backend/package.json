@@ -19,7 +19,7 @@
     "mongoose": "^8.16.0"
   },
   "devDependencies": {
-    "insomnia": "^9.0.0",
+    "insomnia": "^8.5.1",
     "nodemon": "^3.1.10",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
