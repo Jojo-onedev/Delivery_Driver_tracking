@@ -4,7 +4,6 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
-    "docs:insomnia": "node ../scripts/setup-insomnia.js",
     "admin:init": "node scripts/initAdmin.js",
     "admin:reset-password": "node scripts/resetAdminPassword.js"
   },
@@ -19,7 +18,6 @@
     "mongoose": "^8.16.0"
   },
   "devDependencies": {
-    "insomnia": "^8.5.1",
     "nodemon": "^3.1.10",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
