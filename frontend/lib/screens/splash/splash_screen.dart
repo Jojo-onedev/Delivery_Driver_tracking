@@ -19,16 +19,16 @@ class SplashScreenState extends State<SplashScreen> {
 
   Future<void> _navigateToNextScreen() async {
     if (!mounted) return;
-    
+
     final authService = Provider.of<AuthService>(context, listen: false);
     final isLoggedIn = await authService.isLoggedIn();
-    
+
     if (!mounted) return;
-    
+
     await Future.delayed(const Duration(seconds: 2));
-    
+
     if (!mounted) return;
-    
+
     if (isLoggedIn) {
       final userRole = await authService.getUserRole();
       if (!mounted) return;
@@ -50,10 +50,8 @@ class SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Remplacez par votre logo
-            Image.asset(
-              'assets/images/delivery.svg',
-              height: 150,
-            ),
+            Image.asset('assets/images/logo.png', 
+            height: 150),
             const SizedBox(height: 24),
             const CircularProgressIndicator(),
           ],

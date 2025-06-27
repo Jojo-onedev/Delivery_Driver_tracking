@@ -16,9 +16,9 @@ dependencies:
   geolocator: ^14.0.1
   flutter_local_notifications: ^19.3.0
   intl: ^0.20.2
-  flutter_secure_storage: ^8.0.0
+  flutter_secure_storage: ^9.2.4
   flutter_svg: ^2.0.7
-  google_fonts: ^5.1.0
+  google_fonts: ^6.2.1
   flutter_dotenv: ^5.1.0
   flutter_spinkit: ^5.2.0
   http_interceptor: ^2.0.0
@@ -32,16 +32,12 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
-assets:
-  - assets/images/
-  - assets/icons/
-  - assets/animations/
-
-variants:
-  - assets/images/a_dot_burr.jpeg
-  - assets/images/a_dot_ham.jpeg
-
+  
+  assets:
+    - assets/images/logo.png
+    #- assets/icons/
+    #- assets/animations/
+    - assets/.env
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
   # "family" key with the font family name, and a "fonts" key with a
