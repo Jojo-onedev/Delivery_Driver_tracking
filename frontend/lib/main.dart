@@ -7,6 +7,8 @@ import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'screens/splash/splash_screen.dart';
 import 'services/auth_service.dart';
+import 'screens/driver/driver_home_screen.dart'; // Ajoute ce import
+import 'screens/admin/admin_home_screen.dart';   // Ajoute ce import
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +37,8 @@ class MyApp extends StatelessWidget {
         Routes.splash: (context) => const SplashScreen(),
         Routes.login: (context) => const LoginScreen(),
         Routes.register: (context) => const RegisterScreen(),
+        Routes.driverHome: (context) => const DriverHomeScreen(), // Ajoute cette ligne
+        Routes.adminHome: (context) => const AdminHomeScreen(),   // Ajoute cette ligne
       },
       debugShowCheckedModeBanner: false,
     );

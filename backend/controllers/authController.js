@@ -8,7 +8,7 @@ const generateToken = (id) => {
 
 const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, phone, vehicle, licensePlate } = req.body;
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'A user with this email already exists.' });
@@ -17,7 +17,10 @@ const register = async (req, res) => {
       name,
       email,
       password,
-      role: 'driver'  // Toujours définir comme driver
+      phone,
+      vehicle,
+      licensePlate,
+      role: 'driver'
     });
     const token = generateToken(user._id);
     res.status(201).json({
@@ -27,10 +30,12 @@ const register = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
+        vehicle: user.vehicle,
+        licensePlate: user.licensePlate,
         role: user.role
       }
     });
-      
   } catch (error) {
     res.status(400).json({
       message: 'Erreur lors de l\'inscription',

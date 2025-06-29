@@ -10,18 +10,29 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors(
-  {
-    origin: ['http://localhost:8081', 'http://localhost:5000'],
-    credentials: true,
-  }
-));
+app.use(cors()); // Autorise toutes les origines pour le développement
 app.use(express.json());
 
 // Log des requêtes
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
   next();
+});
+
+// Route de test (à placer AVANT la gestion des erreurs)
+app.get('/api/test', (req, res) => {
+  console.log('Test route called');
+  res.json({ message: 'Test route works!' });
+});
+
+// Route d'accueil API
+app.get('/', (req, res) => {
+  res.status(200).json({ 
+    application: 'Delivery Driver Tracking API',
+    status: 'En ligne',
+    environnement: process.env.NODE_ENV || 'développement',
+    documentation: '/api-docs'
+  });
 });
 
 // Configuration Swagger
@@ -55,16 +66,6 @@ mongoose
   })
   .catch((err) => console.error('Erreur de connexion à MongoDB:', err));
 
-// Route de test
-app.get('/', (req, res) => {
-  res.status(200).json({ 
-    application: 'Delivery Driver Tracking API',
-    status: 'En ligne',
-    environnement: process.env.NODE_ENV || 'développement',
-    documentation: '/api-docs' // À implémenter avec Swagger si nécessaire
-  });
-});
-
 // Gestion des erreurs 404
 app.use((req, res) => {
   res.status(404).json({ message: 'Route non trouvée' });
@@ -79,14 +80,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Test route - à ajouter avant app.listen
-app.get('/api/test', (req, res) => {
-  console.log('Test route called');
-  res.json({ message: 'Test route works!' });
-});
-
 const PORT = process.env.PORT || 5000;
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Serveur en cours d'exécution sur le port ${PORT}`);  
 });
 

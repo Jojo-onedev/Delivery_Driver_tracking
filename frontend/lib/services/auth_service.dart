@@ -31,7 +31,7 @@ class AuthService with ChangeNotifier {
     }
   }
 
-  Future<bool> login(String email, String password) async {
+    Future<bool> login(String email, String password) async {
     try {
       final response = await http.post(
         Uri.parse('${dotenv.env['API_BASE_URL']}/auth/login'),
@@ -44,12 +44,23 @@ class AuthService with ChangeNotifier {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        _token = data['token'];
-        _user = User.fromJson(data['user']);
+        debugPrint('Réponse backend login: ${response.body}');
         
+        // Sécurise la récupération du token et de l'utilisateur
+        final token = data['token'];
+        final userJson = data['user'];
+
+        if (token == null || token is! String || token.isEmpty || userJson == null) {
+          // Si le token ou l'utilisateur est absent ou invalide, on échoue proprement
+          return false;
+        }
+
+        _token = token;
+        _user = User.fromJson(userJson);
+
         await _storage.write(key: 'token', value: _token);
         await _storage.write(key: 'user', value: jsonEncode(_user!.toJson()));
-        
+
         notifyListeners();
         return true;
       }

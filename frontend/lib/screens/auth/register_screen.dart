@@ -175,12 +175,12 @@ class RegisterScreenState extends State<RegisterScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                // Sélecteur de véhicule
+                // Sélecteur de moyen de transport
                 DropdownButtonFormField<String>(
                   value: _selectedVehicle,
                   decoration: InputDecoration(
-                    labelText: 'Véhicule',
-                    hintText: 'Sélectionnez votre véhicule',
+                    labelText: 'Moyen de transport',
+                    hintText: 'Sélectionnez votre moyen de transport',
                     prefixIcon: const Icon(Icons.directions_car),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),

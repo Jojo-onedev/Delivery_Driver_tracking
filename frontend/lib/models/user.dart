@@ -28,21 +28,25 @@ class User {
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['_id'] ?? json['id'],
-      name: json['name'],
-      email: json['email'],
-      phone: json['phone'],
-      role: json['role'] ?? 'driver',
-      status: json['status'] ?? 'offline',
-      location: json['location'] is Map ? Map<String, dynamic>.from(json['location']) : null,
-      vehicle: json['vehicle'],
-      licensePlate: json['licensePlate'],
-      rating: (json['rating'] ?? 0).toDouble(),
-      createdAt: DateTime.parse(json['createdAt'] ?? json['created_at']),
-      updatedAt: DateTime.parse(json['updatedAt'] ?? json['updated_at']),
-    );
-  }
+  return User(
+    id: json['_id'] ?? json['id'],
+    name: json['name'] ?? '',
+    email: json['email'] ?? '',
+    phone: json['phone']?.toString(),
+    role: json['role'] ?? 'driver',
+    status: json['status'] ?? 'offline',
+    location: json['location'] is Map ? Map<String, dynamic>.from(json['location']) : null,
+    vehicle: json['vehicle']?.toString(),
+    licensePlate: json['licensePlate']?.toString(),
+    rating: (json['rating'] ?? 0).toDouble(),
+    createdAt: (json['createdAt'] ?? json['created_at']) != null
+        ? DateTime.parse(json['createdAt'] ?? json['created_at'])
+        : DateTime.now(),
+    updatedAt: (json['updatedAt'] ?? json['updated_at']) != null
+        ? DateTime.parse(json['updatedAt'] ?? json['updated_at'])
+        : DateTime.now(),
+  );
+}
 
   Map<String, dynamic> toJson() {
     return {
