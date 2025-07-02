@@ -81,7 +81,7 @@ exports.getDriverLocation = async (req, res) => {
     const { driverId } = req.params;
     
     const driver = await User.findById(driverId)
-      .select('name location lastLocationUpdate status vehicle')
+      .select('name location lastLocationUpdate status vehicule')
       .lean();
 
     if (!driver) {
@@ -96,7 +96,7 @@ exports.getDriverLocation = async (req, res) => {
       driverId,
       name: driver.name,
       status: driver.status,
-      vehicle: driver.vehicle,
+      vehicule: driver.vehicule,
       location: driver.location,
       lastUpdate: driver.lastLocationUpdate
     });
@@ -181,7 +181,7 @@ exports.findNearbyDrivers = async (req, res) => {
           name: 1,
           email: 1,
           phone: 1,
-          vehicle: 1,
+          vehicule: 1,
           'location.coordinates': 1,
           distance: { $round: ['$distance', 2] }, // Arrondir à 2 décimales
           lastLocationUpdate: 1
@@ -200,7 +200,7 @@ exports.findNearbyDrivers = async (req, res) => {
           name: driver.name,
           email: driver.email,
           phone: driver.phone,
-          vehicle: driver.vehicle,
+          vehicule: driver.vehicule,
           distance: driver.distance,
           lastUpdate: driver.lastLocationUpdate
         },

@@ -2,20 +2,31 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Delivery Tracker</title>
+  <title>DeliveryPro</title>
   <style>
-    body { margin: 0; }
+    /* background color animation */
+    body { margin: 0; 
+    animation: bgAnimation 3s infinite;
+    }
+    @keyframes bgAnimation {
+      0% { background-color: #2d82f1; }
+      25% { background-color: #2874d7; }
+      50% { background-color: #2c76d6; }
+      75% { background-color: #186ede; }
+      100% { background-color: #1267d6; }
+    }
     #loading { 
       position: absolute; 
       top: 50%; 
       left: 50%; 
       transform: translate(-50%, -50%); 
-      font-family: Arial, sans-serif; 
+      font-family: Arial, sans-serif;
+
     }
   </style>
 </head>
 <body>
-  <div id="loading">Chargement de l'application...</div>
+  <div id="loading"> </div>
   <script src="main.dart.js" type="application/javascript"></script>
 </body>
 </html>

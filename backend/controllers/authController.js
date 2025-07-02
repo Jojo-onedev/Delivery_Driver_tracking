@@ -8,20 +8,28 @@ const generateToken = (id) => {
 
 const register = async (req, res) => {
   try {
-    const { name, email, password, phone, vehicle, licensePlate } = req.body;
+    const { name, email, password, phone, vehicule, licensePlate } = req.body;
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'A user with this email already exists.' });
     }
-    const user = await User.create({
+
+    // Créez un objet avec les données de base
+    const userData = {
       name,
       email,
       password,
-      phone,
-      vehicle,
-      licensePlate,
       role: 'driver'
-    });
+    };
+
+    // Ajoutez les champs optionnels s'ils sont fournis
+    if (phone) userData.phone = phone;
+    if (vehicule) userData.vehicule = vehicule;
+    if (licensePlate) userData.licensePlate = licensePlate;
+
+    // Créez l'utilisateur avec toutes les données
+    const user = await User.create(userData);
+
     const token = generateToken(user._id);
     res.status(201).json({
       message: 'User successfully registered',
@@ -31,12 +39,13 @@ const register = async (req, res) => {
         name: user.name,
         email: user.email,
         phone: user.phone,
-        vehicle: user.vehicle,
+        vehicule: user.vehicule,
         licensePlate: user.licensePlate,
         role: user.role
       }
     });
   } catch (error) {
+    console.error('Erreur lors de l\'inscription:', error);
     res.status(400).json({
       message: 'Erreur lors de l\'inscription',
       error: error.message
@@ -90,6 +99,17 @@ const login = async (req, res) => {
   }
 };
 
+const logout = async (req, res) => {
+  try {
+    res.json({ message: 'Logout successful' });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Server error during logout',
+      error: error.message
+    });
+  }
+};
+
 const getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
@@ -102,4 +122,4 @@ const getProfile = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getProfile };
+module.exports = { register, login, logout, getProfile };

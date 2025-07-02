@@ -57,9 +57,9 @@ const bcrypt = require('bcryptjs');
  *           type: string
  *           format: date-time
  *           description: Date de la dernière mise à jour de position
- *         vehicle:
+ *         vehicule:
  *           type: string
- *           enum: [car, motorbike, bicycle, on_foot, null]
+ *           enum: [car, motorbike]
  *           nullable: true
  *           description: Le type de véhicule utilisé
  *         licensePlate:
@@ -133,7 +133,6 @@ const userSchema = new mongoose.Schema({
   // Dernière position connue du chauffeur
   location: {
     type: locationSchema,
-    index: '2dsphere',
     sparse: true
   },
   // Statut du chauffeur (hors service, disponible, en livraison)
@@ -147,9 +146,9 @@ const userSchema = new mongoose.Schema({
     type: Date
   },
   // Véhicule du chauffeur (optionnel)
-  vehicle: {
+  vehicule: {
     type: String,
-    enum: ['car', 'motorbike', 'bicycle', 'on_foot', null],
+    enum: ['car', 'motorbike'],
     default: null
   },
   // Numéro de plaque d'immatriculation (si véhicule)
@@ -225,7 +224,7 @@ userSchema.methods.toGeoJSON = function() {
       id: this._id,
       name: this.name,
       status: this.status,
-      vehicle: this.vehicle,
+      vehicule: this.vehicule,
       lastUpdate: this.lastLocationUpdate
     },
     geometry: this.location || null

@@ -127,7 +127,7 @@ npm run test:coverage
   },
   lastLocationUpdate: Date,
   status: { type: String, enum: ['offline', 'available', 'on_delivery'] },
-  vehicle: String,
+  vehicule: String,
   licensePlate: String,
   rating: Number
 }

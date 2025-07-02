@@ -19,12 +19,13 @@ class RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final TextEditingController _licensePlateController = TextEditingController();
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  String? _selectedVehicle;
+  String? _selectedvehicule;
 
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
@@ -40,9 +41,14 @@ class RegisterScreenState extends State<RegisterScreen> {
         name: _nameController.text.trim(),
         email: _emailController.text.trim(),
         password: _passwordController.text,
-        phone: _phoneController.text.trim().isNotEmpty ? _phoneController.text.trim() : null,
-        vehicle: _selectedVehicle,
-        licensePlate: _selectedVehicle != null && _selectedVehicle != 'on_foot' && _licensePlateController.text.isNotEmpty
+        phone: _phoneController.text.trim().isNotEmpty
+            ? _phoneController.text.trim()
+            : null,
+        vehicule: _selectedvehicule,
+        licensePlate:
+            _selectedvehicule != null &&
+                _selectedvehicule != 'on_foot' &&
+                _licensePlateController.text.isNotEmpty
             ? _licensePlateController.text.trim()
             : null,
       );
@@ -52,7 +58,7 @@ class RegisterScreenState extends State<RegisterScreen> {
       if (success) {
         // Redirection vers l'écran de connexion après inscription réussie
         Navigator.pushReplacementNamed(context, Routes.login);
-        
+
         // Afficher un message de succès
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -108,9 +114,7 @@ class RegisterScreenState extends State<RegisterScreen> {
         ),
         title: Text(
           'Créer un compte',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-          ),
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
         ),
       ),
       body: SafeArea(
@@ -124,10 +128,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 16),
                 // Logo
                 Center(
-                  child: Image.asset(
-                    'assets/images/logo.png',
-                    height: 100,
-                  ),
+                  child: Image.asset('assets/images/logo.png', height: 100),
                 ),
                 const SizedBox(height: 32),
                 // Champs de formulaire
@@ -177,10 +178,11 @@ class RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 16),
                 // Sélecteur de moyen de transport
                 DropdownButtonFormField<String>(
-                  value: _selectedVehicle,
+                  value: _selectedvehicule,
+                  isExpanded: true, // Permet au texte de s'adapter
                   decoration: InputDecoration(
-                    labelText: 'Moyen de transport',
-                    hintText: 'Sélectionnez votre moyen de transport',
+                    labelText: 'Type de véhicule',
+                    hintText: 'Sélectionnez', // Texte d'aide plus court
                     prefixIcon: const Icon(Icons.directions_car),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -190,53 +192,48 @@ class RegisterScreenState extends State<RegisterScreen> {
                     fillColor: Colors.white,
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
-                      vertical: 16,
+                      vertical: 12, // Réduit le padding vertical
                     ),
                   ),
                   items: const [
                     DropdownMenuItem(
-                      value: 'on_foot',
-                      child: Text('À pied'),
-                    ),
-                    DropdownMenuItem(
                       value: 'car',
-                      child: Text('Voiture'),
+                      child: Text('Voiture', overflow: TextOverflow.ellipsis),
                     ),
                     DropdownMenuItem(
                       value: 'motorbike',
-                      child: Text('Moto'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'bicycle',
-                      child: Text('Vélo'),
-                    ),
+                      child: Text('Moto', overflow: TextOverflow.ellipsis),
+                    )
                   ],
                   onChanged: (value) {
                     setState(() {
-                      _selectedVehicle = value;
+                      _selectedvehicule = value;
                     });
                   },
                   validator: (value) {
                     if (value == null) {
-                      return 'Veuillez sélectionner un véhicule';
+                      return 'Sélection requise';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
                 // Champ de saisie de la plaque d'immatriculation
-                _selectedVehicle != null && _selectedVehicle != 'on_foot'
-                    ? CustomTextField(
-                        controller: _licensePlateController,
-                        label: 'Plaque d\'immatriculation',
-                        hint: 'Entrez la plaque d\'immatriculation de votre véhicule',
-                        prefixIcon: Icons.badge,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Veuillez entrer la plaque d\'immatriculation de votre véhicule';
-                          }
-                          return null;
-                        },
+                _selectedvehicule != null && _selectedvehicule != 'motorbike'
+                    ? ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 400), // Limite la largeur maximale
+                        child: CustomTextField(
+                          controller: _licensePlateController,
+                          label: 'Plaque d\'immatriculation',
+                          hint: 'Ex: AB-123-CD', // Texte d'aide plus court
+                          prefixIcon: Icons.badge,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Champ obligatoire';
+                            }
+                            return null;
+                          },
+                        ),
                       )
                     : const SizedBox(),
                 const SizedBox(height: 16),

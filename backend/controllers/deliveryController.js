@@ -4,12 +4,14 @@ const { validationResult } = require('express-validator');
 // Créer une nouvelle livraison (Admin)
 exports.createDelivery = async (req, res) => {
   try {
-    const { orderId, customerName, address, driverId } = req.body;
+    const { orderId, customerName, address, driverId, phone, notes } = req.body;
     
     const delivery = new Delivery({
       orderId,
       customerName,
       address,
+      phone,
+      notes,
       driverId: driverId || null,
       status: driverId ? 'assigned' : 'pending'
     });

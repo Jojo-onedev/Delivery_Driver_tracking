@@ -1,7 +1,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { register, login, getProfile } = require('../controllers/authController');
+const { register, login, getProfile, logout } = require('../controllers/authController');
 const { authenticate } = require('../middleware/auth');
 
 /**
@@ -100,5 +100,22 @@ router.post('/login', login);
  *         description: Non autorisé
  */
 router.get('/profile', authenticate, getProfile);
+
+/**
+ * @swagger
+ * /auth/logout:
+ *   post:
+ *     summary: Déconnecte l'utilisateur
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Déconnexion réussie
+ *       401:
+ *         description: Non autorisé
+ */
+
+router.post('/logout', authenticate, logout);
 
 module.exports = router;
