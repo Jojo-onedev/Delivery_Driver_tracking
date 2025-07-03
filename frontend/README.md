@@ -1,16 +1,49 @@
-# frontend
+# DeliveryPro
 
-A new Flutter project.
+Application Flutter de suivi et gestion des livraisons pour chauffeurs et administrateurs.
 
-## Getting Started
+## Présentation
+DeliveryPro permet :
+- Aux chauffeurs de consulter et suivre leurs livraisons assignées
+- Aux administrateurs de gérer l’ensemble des livraisons et des chauffeurs
+- Un accès sécurisé par authentification (rôles driver/admin)
+- Un affichage moderne et responsive (web, desktop, mobile)
 
-This project is a starting point for a Flutter application.
+## Fonctionnalités principales
+- Connexion sécurisée (JWT)
+- Filtrage des livraisons par chauffeur
+- Rafraîchissement des données en temps réel
+- Statistiques de livraisons (en cours, terminées, en attente)
+- Interface d’administration (visualisation globale, gestion des chauffeurs)
+- UI personnalisée (padding, animations, thèmes)
 
-A few resources to get you started if this is your first Flutter project:
+## Lancement du projet
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+1. **Pré-requis** :
+   - Flutter SDK (>= 3.8)
+   - Un backend Node.js compatible (voir dossier backend/)
+2. **Installation des dépendances** :
+   ```bash
+   flutter pub get
+   ```
+3. **Lancement en mode debug** :
+   ```bash
+   flutter run
+   ```
+   (pour web : `flutter run -d chrome`)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Structure du projet
+- `lib/` : code source principal (screens, services, modèles)
+- `web/` : fichiers pour la version web
+- `test/` : tests Flutter
+
+## Personnalisation
+- Le nom de l’app et le thème sont configurables dans `main.dart` et `pubspec.yaml`
+- Pour changer le logo/icône, voir les dossiers `assets/` et `web/`
+
+## Liens utiles
+- [Documentation Flutter](https://docs.flutter.dev/)
+- [Cookbook Flutter](https://docs.flutter.dev/cookbook)
+- [Démarrage Flutter Web](https://docs.flutter.dev/platform-integration/web)
+
+---
