@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/delivery.dart';
 import '../../services/delivery_service.dart';
-
 import '../../services/auth_service.dart';
 import 'package:intl/intl.dart';
+import 'dart:async';
+import 'package:geolocator/geolocator.dart';
 
 class DriverHomeScreen extends StatefulWidget {
   const DriverHomeScreen({super.key});
@@ -15,6 +16,8 @@ class DriverHomeScreen extends StatefulWidget {
 
 class DriverHomeScreenState extends State<DriverHomeScreen>
     with SingleTickerProviderStateMixin {
+  Timer? _locationTimer;
+
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
@@ -164,19 +167,13 @@ class DriverHomeScreenState extends State<DriverHomeScreen>
     // Diffère la récupération des livraisons pour garantir que le Provider est prêt
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final user = Provider.of<AuthService>(context, listen: false).user;
-      debugPrint('DEBUG user: $user');
-      debugPrint('DEBUG user?.id: ${user?.id}');
-      if (user?.id == null) {
-        debugPrint('Erreur : ID du chauffeur non trouvé');
-        // Affiche un message ou attends le chargement
-        return;
-      }
       await _deliveryService!.fetchDeliveries(driverId: user!.id);
     });
   }
 
   @override
   void dispose() {
+    _locationTimer?.cancel();
     _tabController.dispose();
     super.dispose();
   }
@@ -395,6 +392,8 @@ class DriverHomeScreenState extends State<DriverHomeScreen>
         return Colors.orange;
       case 'assigned':
         return Colors.blue;
+      case 'in_progress':
+        return Colors.lightBlue;
       case 'delivered':
         return Colors.green;
       case 'cancelled':
@@ -409,6 +408,8 @@ class DriverHomeScreenState extends State<DriverHomeScreen>
       case 'pending':
         return Icons.pending;
       case 'assigned':
+        return Icons.play_arrow;
+      case 'in_progress':
         return Icons.delivery_dining;
       case 'delivered':
         return Icons.check_circle;
@@ -427,6 +428,9 @@ class DriverHomeScreenState extends State<DriverHomeScreen>
         break;
       case 'assigned':
         color = Colors.blue;
+        break;
+      case 'in_progress':
+        color = Colors.lightBlue;
         break;
       case 'delivered':
         color = Colors.green;
@@ -452,6 +456,8 @@ class DriverHomeScreenState extends State<DriverHomeScreen>
       case 'pending':
         return 'En attente';
       case 'assigned':
+        return 'À démarrer';
+      case 'in_progress':
         return 'En cours';
       case 'delivered':
         return 'Livrée';
@@ -621,14 +627,18 @@ class DriverHomeScreenState extends State<DriverHomeScreen>
             'En cours de livraison',
             delivery.status == 'assigned'
                 ? Icons.directions_car
+                : delivery.status == 'in_progress'
+                ? Icons.delivery_dining
                 : Icons.check_circle,
-            delivery.status == 'assigned' || delivery.status == 'delivered',
+            delivery.status == 'assigned' || delivery.status == 'in_progress' || delivery.status == 'delivered',
             delivery.status == 'assigned'
                 ? Colors.blue
+                : delivery.status == 'in_progress'
+                ? Colors.lightBlue
                 : delivery.status == 'delivered'
                 ? Colors.green
                 : Colors.grey.shade300,
-            isCurrent: delivery.status == 'assigned',
+            isCurrent: delivery.status == 'assigned' || delivery.status == 'in_progress',
           ),
           _buildStatusStep(
             'Livrée',
@@ -684,14 +694,46 @@ class DriverHomeScreenState extends State<DriverHomeScreen>
   Widget _buildActionButtons(Delivery delivery) {
     return Row(
       children: [
-        if (delivery.status == 'pending') ...[
-          _buildActionButton(
-            'Démarrer la livraison',
-            Icons.delivery_dining,
-            () => _updateDeliveryStatus(delivery.id, 'assigned'),
-            color: Colors.blue,
+        if (delivery.status == 'assigned') ...[
+          Expanded(
+            child: _buildActionButton(
+              'Commencer la livraison',
+              Icons.play_arrow,
+              () => _updateDeliveryStatus(delivery.id, 'in_progress'),
+              color: Colors.blue,
+            ),
           ),
-        ] else if (delivery.status == 'assigned') ...[
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildActionButton(
+              'Annuler la livraison',
+              Icons.cancel,
+              () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('Confirmation'),
+                    content: const Text('Voulez-vous vraiment annuler cette livraison ?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(false),
+                        child: const Text('Non'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(true),
+                        child: const Text('Oui'),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirm == true) {
+                  _updateDeliveryStatus(delivery.id, 'cancelled');
+                }
+              },
+              color: Colors.red,
+            ),
+          ),
+        ] else if (delivery.status == 'in_progress' || delivery.status == 'in_transit') ...[
           Expanded(
             child: _buildActionButton(
               'Marquer comme livrée',
@@ -703,10 +745,40 @@ class DriverHomeScreenState extends State<DriverHomeScreen>
           const SizedBox(width: 12),
           Expanded(
             child: _buildActionButton(
-              'Signaler un problème',
-              Icons.report_problem,
-              () => _showProblemDialog(delivery.id),
-              color: Colors.orange,
+            'Signaler un problème',
+            Icons.report_problem,
+            () => _showProblemDialog(delivery.id),
+            color: Colors.orange,
+          ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildActionButton(
+              'Annuler la livraison',
+              Icons.cancel,
+              () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('Confirmation'),
+                    content: const Text('Voulez-vous vraiment annuler cette livraison ?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(false),
+                        child: const Text('Non'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(true),
+                        child: const Text('Oui'),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirm == true) {
+                  _updateDeliveryStatus(delivery.id, 'cancelled');
+                }
+              },
+              color: Colors.red,
             ),
           ),
         ],
@@ -736,16 +808,57 @@ class DriverHomeScreenState extends State<DriverHomeScreen>
   Future<void> _updateDeliveryStatus(String deliveryId, String status) async {
     try {
       Delivery? updatedDelivery;
+      final user = Provider.of<AuthService>(context, listen: false).user;
       if (status == 'assigned') {
         updatedDelivery = await _deliveryService!.updateDeliveryStatus(
           deliveryId,
           'assigned',
         );
+        // Démarrer le timer de localisation toutes les 20 minutes
+        if (user != null) {
+          _locationTimer?.cancel();
+          
+          _locationTimer = Timer.periodic(const Duration(minutes: 1), (timer) async {
+            try {
+              LocationPermission permission = await Geolocator.checkPermission();
+              if (permission == LocationPermission.denied) {
+                permission = await Geolocator.requestPermission();
+                if (permission == LocationPermission.denied) {
+                  debugPrint('Permission de localisation refusée');
+                  return;
+                }
+              }
+              if (permission == LocationPermission.deniedForever) {
+                debugPrint('Permission de localisation refusée définitivement');
+                return;
+              }
+              Position position = await Geolocator.getCurrentPosition(
+                locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+              );
+              debugPrint('TEST LOCALISATION: lat=${position.latitude}, long=${position.longitude}');
+              await _deliveryService!.updateDriverLocation(user.id, position);
+            } catch (e) {
+              debugPrint('Erreur lors de l\'envoi de la position: $e');
+            }
+          });
+        }
       } else if (status == 'delivered') {
         updatedDelivery = await _deliveryService!.updateDeliveryStatus(
           deliveryId,
           'delivered',
         );
+        // Arrêter le timer de localisation
+        _locationTimer?.cancel();
+        _locationTimer = null;
+      } else if (status == 'in_progress' || status == 'cancelled') {
+        updatedDelivery = await _deliveryService!.updateDeliveryStatus(
+          deliveryId,
+          status,
+        );
+        if (status == 'cancelled') {
+          _locationTimer?.cancel();
+          _locationTimer = null;
+        }
       }
       if (mounted && updatedDelivery != null) {
         Navigator.pop(context);

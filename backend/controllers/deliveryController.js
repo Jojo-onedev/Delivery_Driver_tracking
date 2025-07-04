@@ -60,7 +60,7 @@ exports.updateStatus = async (req, res) => {
   const { status } = req.body;
 
   try {
-    const allowedStatus = ['pending', 'picked', 'in_transit', 'delivered'];
+    const allowedStatus = ['pending', 'picked', 'in_transit', 'delivered', 'assigned', 'cancelled','in_progress'];
     if (!allowedStatus.includes(status)) {
       return res.status(400).json({ message: 'Statut invalide.' });
     }
@@ -69,7 +69,7 @@ exports.updateStatus = async (req, res) => {
       id,
       { 
         status,
-        ...(status === 'in_transit' && { pickedAt: new Date() }),
+        ...(status === 'in_progress' && { pickedAt: new Date() }),
         ...(status === 'delivered' && { deliveredAt: new Date() })
       },
       { new: true }

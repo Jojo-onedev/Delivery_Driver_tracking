@@ -577,7 +577,7 @@ class DeliveryService with ChangeNotifier {
         Geolocator.getPositionStream(locationSettings: locationSettings).listen(
           (Position position) async {
             _driverPositions[driverId] = position;
-            await _updateDriverLocation(driverId, position);
+            await updateDriverLocation(driverId, position);
           },
         );
   }
@@ -589,7 +589,7 @@ class DeliveryService with ChangeNotifier {
   }
 
   // Mettre à jour la position du chauffeur sur le serveur
-  Future<void> _updateDriverLocation(String driverId, Position position) async {
+  Future<void> updateDriverLocation(String driverId, Position position) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString(AppConstants.storageTokenKey);

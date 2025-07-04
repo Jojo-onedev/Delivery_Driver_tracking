@@ -133,10 +133,14 @@ class _DriversTabState extends State<DriversTab> {
   Widget _buildDriversList() {
     return Consumer<DriverService>(
       builder: (context, driverService, _) {
-      debugPrint('🔍 Nombre total de chauffeurs dans le service: ${driverService.drivers.length}');
+        debugPrint(
+          '🔍 Nombre total de chauffeurs dans le service: ${driverService.drivers.length}',
+        );
 
         final drivers = driverService.drivers.where((driver) {
-          debugPrint('🔍 Vérification du chauffeur: ${driver.name} (${driver.status})');
+          debugPrint(
+            '🔍 Vérification du chauffeur: ${driver.name} (${driver.status})',
+          );
 
           // Filtre par recherche
           final searchTerm = _searchController.text.toLowerCase();
@@ -179,78 +183,140 @@ class _DriversTabState extends State<DriversTab> {
     ).then((_) => _loadDrivers());
   }
 
-  void _showDriverDetails(Driver driver) {
+  void _showDriverDetails(Driver driver) async {
+    // On affiche un loader pendant la récupération
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      builder: (context) => FutureBuilder<Map<String, dynamic>?>(
+        future: Provider.of<DriverService>(
+          context,
+          listen: false,
+        ).getDriverLocation(driver.id),
+        builder: (context, snapshot) {
+          Widget locationWidget;
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            locationWidget = const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Center(child: CircularProgressIndicator()),
+            );
+          } else if (snapshot.hasError) {
+            locationWidget = const Padding(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Text(
+                'Erreur lors de la récupération de la position',
+                style: TextStyle(color: Colors.red),
+              ),
+            );
+          } else if (snapshot.hasData &&
+              snapshot.data != null &&
+              snapshot.data!['location'] != null) {
+            final loc = snapshot.data!['location'];
+            final coords = loc['coordinates'];
+            final double? longitude = coords != null && coords.length == 2
+                ? coords[0] as double?
+                : null;
+            final double? latitude = coords != null && coords.length == 2
+                ? coords[1] as double?
+                : null;
+            locationWidget = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  backgroundColor: driver.isOnline ? Colors.green : Colors.grey,
-                  radius: 5,
-                ),
-                const SizedBox(width: 8),
+                const SizedBox(height: 12),
                 Text(
-                  driver.name,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  'Position actuelle :',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
+                if (latitude != null && longitude != null)
+                  Text(
+                    'Latitude : $latitude\nLongitude : $longitude',
+                    style: TextStyle(color: Colors.blueGrey[700]),
+                  ),
+                if (latitude == null || longitude == null)
+                  const Text('Coordonnées non disponibles'),
               ],
-            ),
-            const SizedBox(height: 16),
-            _buildDetailRow('Statut', driver.statusText),
-            _buildDetailRow('Email', driver.email),
-            _buildDetailRow('Téléphone', driver.phone),
-            if (driver.vehiculeType != null)
-              _buildDetailRow(
-                'Véhicule',
-                '${driver.vehiculeType} ${driver.licensePlate ?? ''}',
-              ),
-            if (driver.createdAt != null)
-              _buildDetailRow(
-                'Inscrit le',
-                '${driver.createdAt!.day}/${driver.createdAt!.month}/${driver.createdAt!.year}',
-              ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _showEditDriverDialog(driver);
-                    },
-                    child: const Text('Modifier'),
+            );
+          } else {
+            locationWidget = const Padding(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Text('Aucune position disponible'),
+            );
+          }
+          return Container(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: driver.isOnline
+                            ? Colors.green
+                            : Colors.grey,
+                        radius: 5,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        driver.name,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _confirmDeleteDriver(driver);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
+                  const SizedBox(height: 16),
+                  _buildDetailRow('Statut', driver.statusText),
+                  _buildDetailRow('Email', driver.email),
+                  _buildDetailRow('Téléphone', driver.phone),
+                  if (driver.vehiculeType != null)
+                    _buildDetailRow(
+                      'Véhicule',
+                      '${driver.vehiculeType} ${driver.licensePlate ?? ''}',
                     ),
-                    child: const Text(
-                      'Supprimer',
-                      style: TextStyle(color: Colors.white),
+                  if (driver.createdAt != null)
+                    _buildDetailRow(
+                      'Inscrit le',
+                      '${driver.createdAt!.day}/${driver.createdAt!.month}/${driver.createdAt!.year}',
                     ),
+                  locationWidget,
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            _showEditDriverDialog(driver);
+                          },
+                          child: const Text('Modifier'),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            _confirmDeleteDriver(driver);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                          ),
+                          child: const Text(
+                            'Supprimer',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
