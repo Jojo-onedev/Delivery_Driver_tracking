@@ -1,6 +1,6 @@
 class AppConstants {
   // URL de base de l'API - Remplacez 192.168.x.x par votre adresse IP locale
-  static const String apiUrl = 'http://localhost:5000/api';
+  static const String apiUrl = 'http://192.168.1.73:5000/api';
 
   // Statuts de livraison
   static const String statusPending = 'pending';
